@@ -8,18 +8,11 @@ const ClockButton = ({
   return (
     <button
       onClick={onClick}
-      className={`
-        transition-all duration-150
-        ${isPressed ? "scale-95" : "scale-100 hover:scale-105"}
-      `}
+      className="transition-transform duration-100 active:scale-95"
     >
       <SvgIcon
-        name="clock_button"
+        name={isPressed ? "clock_down" : "clock_up"}
         width={width}
-        className={`
-          transition-all duration-150
-          ${isPressed ? "brightness-75" : ""}
-        `}
       />
     </button>
   );
