@@ -1,7 +1,7 @@
 // src/store/circuitStore.js
 import { create } from 'zustand';
 
-const useCircuitStore = create((set) => ({
+const useCircuitStore = create((set, get) => ({
   // 1. 현재 활성화된 챕터(페이지) 상태 관리
   currentChapter: 'Stage1_Gates',
   setChapter: (chapter) => set({ currentChapter: chapter }),
@@ -39,24 +39,51 @@ const useCircuitStore = create((set) => ({
     });
   },
   
-  // 4. D Flip-Flop 상태
+  // 4. D Flip-Flop 상태 — 스토어가 D/CLK/Q를 모두 소유하는 '엣지 감지 두뇌'
   dffState: {
-    q: 0,
-    prevClk: 0,
+    d: 0,         // 데이터 입력
+    clk: 0,       // 현재 클럭 신호
+    q: 0,         // 저장된 출력
+    prevClk: 0,   // 직전 클럭 (상승 엣지 감지용)
+    edgeCount: 0, // 상승 엣지가 발생한 누적 횟수 (UI 애니메이션 트리거용)
   },
 
-  // 5. DFF 업데이트 — 클럭 상승 엣지(0→1)일 때만 Q에 D값 저장
-  updateDFF: (d, clk) => {
+  // 5-1. D 입력 변경 — 클럭 엣지가 아니므로 Q는 절대 바뀌지 않는다 (상태 잠금 Lock)
+  //  → 클럭이 0이든 1이든, D를 아무리 조작해도 여기서는 Q를 건드리지 않는다.
+  setDFFInput: (d) =>
+    set((state) => ({
+      dffState: { ...state.dffState, d },
+    })),
+
+  // 5-2. 클럭 신호 설정 — 상승 엣지(0→1)인 '그 찰나'에만 D를 Q에 덮어쓴다
+  setClk: (clk) =>
     set((state) => {
       const risingEdge = state.dffState.prevClk === 0 && clk === 1;
       return {
         dffState: {
-          q: risingEdge ? d : state.dffState.q,
-          prevClk: clk,
+          ...state.dffState,
+          clk,
+          prevClk: clk, // 다음 비교를 위해 현재 값을 직전 값으로 기록
+          // 상승 엣지일 때만 D를 저장, 그 외(유지·하강 엣지)에는 기존 Q 유지 → Lock
+          q: risingEdge ? state.dffState.d : state.dffState.q,
+          edgeCount: risingEdge
+            ? state.dffState.edgeCount + 1
+            : state.dffState.edgeCount,
         },
       };
-    });
+    }),
+
+  // 5-3. 클럭 토글 — 자동 클럭(useClock)과 토글 버튼에서 현재 clk를 뒤집어 setClk 실행
+  toggleClk: () => {
+    const { clk } = get().dffState;
+    get().setClk(clk === 0 ? 1 : 0);
   },
+
+  // 5-4. DFF 초기화 — Q와 클럭 상태를 0으로 되돌린다 (D 입력값은 유지)
+  resetDFF: () =>
+    set((state) => ({
+      dffState: { ...state.dffState, clk: 0, q: 0, prevClk: 0, edgeCount: 0 },
+    })),
 }));
 
 export default useCircuitStore;
