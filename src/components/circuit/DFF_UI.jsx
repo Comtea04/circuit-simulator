@@ -1,5 +1,5 @@
 import Wire from "./Wire";
-import LightBulb from "./LightBulb";
+import LightBulb from "./Lightbulb";
 import NotGate from "./gates/NotGate";
 import NandGate from "./gates/NandGate";
 
