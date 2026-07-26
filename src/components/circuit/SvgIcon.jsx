@@ -41,7 +41,7 @@ const SvgIcon = ({
 
   return (
     <img
-      src={`/icon/${name}.svg`}
+      src={`${import.meta.env.BASE_URL}icon/${name}.svg`}
       alt={name}
       width={width}
       height={height}

@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { HashRouter, Routes, Route } from 'react-router-dom';
 import Intro from './pages/Intro.jsx';
 import Stage1_Gates from './pages/Stage1_Gates.jsx';
 import Stage2_Latch from './pages/Stage2_Latch.jsx';
@@ -9,7 +9,7 @@ import RightPanel from './components/layout/RightPanel.jsx';
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       {/* h-screen overflow-hidden으로 전체 창 크기 고정 & 다크 배경 적용 */}
       <div className="flex h-screen w-screen overflow-hidden bg-slate-950 text-slate-100 select-none">
         {/* 좌: 목차 (사이드바) */}
@@ -34,6 +34,6 @@ export default function App() {
           </div>
         </div>
       </div>
-    </BrowserRouter>
+    </HashRouter>
   );
 }
