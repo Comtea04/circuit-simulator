@@ -1,45 +1,39 @@
-import { useState } from 'react';
+import { useEffect } from 'react';
 import useCircuitStore from '../store/circuitStore';
 import Switch from '../components/circuit/Switch';
 import LightBulb from '../components/circuit/Lightbulb';
 import GateUI from '../components/circuit/GateUI';
-import { getChapter } from '../constant/chapters';
 
 const WireH = ({ signal, width = 'w-10' }) => (
   <div className={`h-1 ${width} rounded transition-colors duration-200 ${signal ? 'bg-red-500' : 'bg-blue-400'}`} />
 );
 
 const Stage2_Latch = () => {
-  const chapter = getChapter('stage2');
-  const { latchState, updateLatch } = useCircuitStore();
-  const [s, setS] = useState(0);
-  const [r, setR] = useState(0);
+  // 셀렉터로 필요한 조각만 구독 (전체 store 구독 시 불필요한 리렌더 방지)
+  const latchState = useCircuitStore((st) => st.latchState);
+  const { s, r } = useCircuitStore((st) => st.latchInput);
+  const updateLatch = useCircuitStore((st) => st.updateLatch);
+  const resetLatch = useCircuitStore((st) => st.resetLatch);
+  const completeStage = useCircuitStore((st) => st.completeStage);
+
+  // 스테이지 진입 시 깨끗한 상태로 시작 → 방문 간 잔상/데스싱크 제거
+  useEffect(() => {
+    resetLatch();
+  }, [resetLatch]);
 
   const handleToggleS = () => {
-    const next = s === 0 ? 1 : 0;
-    setS(next);
-    updateLatch(next, r);
+    updateLatch(s === 0 ? 1 : 0, r);
+    completeStage('stage2');
   };
-
   const handleToggleR = () => {
-    const next = r === 0 ? 1 : 0;
-    setR(next);
-    updateLatch(s, next);
+    updateLatch(s, r === 0 ? 1 : 0);
+    completeStage('stage2');
   };
 
   const { q, qNot, isError } = latchState;
 
   return (
     <div className="max-w-3xl mx-auto">
-      {/* 헤더 */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">{chapter.title}</h1>
-        <p className="text-gray-500 mt-1">{chapter.description}</p>
-        <div className="mt-3 bg-blue-50 border border-blue-200 rounded-lg px-4 py-2 text-blue-700 text-sm">
-          {chapter.goal}
-        </div>
-      </div>
-
       {/* 에러 배너 */}
       {isError && (
         <div className="mb-4 bg-red-100 border border-red-400 text-red-700 rounded-lg px-4 py-3 font-semibold text-sm">

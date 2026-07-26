@@ -1,8 +1,8 @@
 import useCircuit from '../hooks/useCircuit';
+import useCircuitStore from '../store/circuitStore';
 import Switch from '../components/circuit/Switch';
 import LightBulb from '../components/circuit/Lightbulb';
 import GateUI from '../components/circuit/GateUI';
-import { getChapter } from '../constant/chapters';
 
 const GATES = ['AND', 'OR', 'XOR', 'NOT', 'NAND', 'NOR'];
 
@@ -14,9 +14,14 @@ const WireSegment = ({ signal }) => (
   />
 );
 
-const GateCard = ({ type }) => {
+const GateCard = ({ type, onInteract }) => {
   const inputCount = type === 'NOT' ? 1 : 2;
   const { inputs, toggleInput, output } = useCircuit(type, Array(inputCount).fill(0));
+
+  const handleToggle = (i) => {
+    toggleInput(i);
+    onInteract(); // 스위치를 한 번이라도 조작하면 스테이지 완료로 기록
+  };
 
   return (
     <div className="bg-white rounded-xl shadow p-5 flex flex-col gap-4">
@@ -28,7 +33,7 @@ const GateCard = ({ type }) => {
           {inputs.map((val, i) => (
             <div key={i} className="flex items-center gap-1">
               <span className="text-xs text-gray-400 w-3">{String.fromCharCode(65 + i)}</span>
-              <Switch value={val} onToggle={() => toggleInput(i)} />
+              <Switch value={val} onToggle={() => handleToggle(i)} />
               <WireSegment signal={val} />
             </div>
           ))}
@@ -53,21 +58,14 @@ const GateCard = ({ type }) => {
 };
 
 const Stage1_Gates = () => {
-  const chapter = getChapter('stage1');
+  const completeStage = useCircuitStore((s) => s.completeStage);
+  const markDone = () => completeStage('stage1');
 
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">{chapter.title}</h1>
-        <p className="text-gray-500 mt-1">{chapter.description}</p>
-        <div className="mt-3 bg-blue-50 border border-blue-200 rounded-lg px-4 py-2 text-blue-700 text-sm">
-          {chapter.goal}
-        </div>
-      </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {GATES.map((type) => (
-          <GateCard key={type} type={type} />
+          <GateCard key={type} type={type} onInteract={markDone} />
         ))}
       </div>
     </div>
