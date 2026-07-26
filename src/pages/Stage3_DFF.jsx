@@ -5,7 +5,6 @@ import Switch from '../components/circuit/Switch';
 import LightBulb from '../components/circuit/Lightbulb';
 import ClockButton from '../components/circuit/ClockButton';
 import DFF_UI from '../components/circuit/DFF_UI';
-import { getChapter } from '../constant/chapters';
 
 const WireH = ({ signal, width = 'w-10' }) => (
   <div
@@ -16,26 +15,40 @@ const WireH = ({ signal, width = 'w-10' }) => (
 );
 
 const Stage3_DFF = () => {
-  const chapter = getChapter('stage3');
-
   // 스토어(두뇌)에서 DFF 상태와 액션을 가져온다
   const { d, clk, q, edgeCount } = useCircuitStore((s) => s.dffState);
   const setDFFInput = useCircuitStore((s) => s.setDFFInput);
   const setClk = useCircuitStore((s) => s.setClk);
   const resetDFF = useCircuitStore((s) => s.resetDFF);
+  const completeStage = useCircuitStore((s) => s.completeStage);
 
   // 자동 클럭 on/off
   const [auto, setAuto] = useState(false);
   useClock(auto, 1000);
+
+  // 스테이지 진입 시 깨끗한 상태로 시작 → 방문 간 잔상 제거
+  useEffect(() => {
+    resetDFF();
+  }, [resetDFF]);
+
+  // 자동 클럭 토글: OFF로 끌 때 clk을 0으로 정리한다.
+  // (clk=1로 남으면 이후 수동 첫 클릭이 상승 엣지를 못 만드는 문제 방지)
+  const toggleAuto = () =>
+    setAuto((v) => {
+      const next = !v;
+      if (!next && clk === 1) setClk(0);
+      return next;
+    });
 
   // 상승 엣지 애니메이션: edgeCount가 늘어날 때마다 잠깐 번쩍인다
   const [flash, setFlash] = useState(false);
   useEffect(() => {
     if (edgeCount === 0) return undefined;
     setFlash(true);
+    completeStage('stage3'); // 상승 엣지로 값이 실제 저장되면 스테이지 완료
     const t = setTimeout(() => setFlash(false), 500);
     return () => clearTimeout(t);
-  }, [edgeCount]);
+  }, [edgeCount, completeStage]);
 
   // D는 클럭 엣지가 아니면 Q를 못 바꾼다(잠금). 스토어가 이를 보장한다.
   const handleToggleD = () => setDFFInput(d === 0 ? 1 : 0);
@@ -49,15 +62,6 @@ const Stage3_DFF = () => {
 
   return (
     <div className="max-w-3xl mx-auto">
-      {/* 헤더 */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">{chapter.title}</h1>
-        <p className="text-gray-500 mt-1">{chapter.description}</p>
-        <div className="mt-3 bg-blue-50 border border-blue-200 rounded-lg px-4 py-2 text-blue-700 text-sm">
-          {chapter.goal}
-        </div>
-      </div>
-
       {/* 상승 엣지 감지 배너 */}
       {flash && (
         <div className="mb-4 bg-green-100 border border-green-400 text-green-700 rounded-lg px-4 py-3 font-semibold text-sm animate-pulse">
@@ -129,7 +133,7 @@ const Stage3_DFF = () => {
             <span className="font-bold text-gray-600">자동 클럭 (Auto Clock)</span>
             <button
               type="button"
-              onClick={() => setAuto((v) => !v)}
+              onClick={toggleAuto}
               className={`relative w-11 h-6 rounded-full transition-colors ${auto ? 'bg-green-500' : 'bg-gray-300'}`}
               aria-pressed={auto}
             >

@@ -6,6 +6,16 @@ const useCircuitStore = create((set, get) => ({
   currentChapter: 'Stage1_Gates',
   setChapter: (chapter) => set({ currentChapter: chapter }),
 
+  // 1-1. 학습 진도율 — 각 스테이지에서 핵심 상호작용을 한 번이라도 하면 완료 처리.
+  //  → 헤더 진도율 바가 이 값을 읽는다(역할 A가 UI로 표시). 스테이지 재방문해도 유지(누적).
+  progress: { stage1: false, stage2: false, stage3: false },
+  completeStage: (id) =>
+    set((state) =>
+      state.progress[id]
+        ? {} // 이미 완료면 상태 변경 없음(불필요한 리렌더 방지)
+        : { progress: { ...state.progress, [id]: true } }
+    ),
+
   // 2. SR Latch의 전역 상태 (Q, Q')
   latchState: {
     q: 0,
@@ -13,8 +23,19 @@ const useCircuitStore = create((set, get) => ({
     isError: false, // S와 R이 동시에 1일 때 띄울 에러 상태
   },
 
+  // 2-1. SR Latch 입력값도 store가 소유 (페이지 이탈 후 재방문 시 스위치/출력 데스싱크 방지)
+  latchInput: { s: 0, r: 0 },
+
+  // 2-2. Latch 초기화 — 스테이지 재방문 시 깨끗한 상태로 시작 (페이지별 독립 시뮬레이션)
+  resetLatch: () =>
+    set({
+      latchInput: { s: 0, r: 0 },
+      latchState: { q: 0, qNot: 1, isError: false },
+    }),
+
   // 3. SR Latch 입력 처리 및 피드백 루프 로직
   updateLatch: (s, r) => {
+    set({ latchInput: { s, r } });
     set((state) => {
       // [예외 처리] S와 R이 모두 1인 경우 (금지된 상태)
       if (s === 1 && r === 1) {
@@ -85,5 +106,12 @@ const useCircuitStore = create((set, get) => ({
       dffState: { ...state.dffState, clk: 0, q: 0, prevClk: 0, edgeCount: 0 },
     })),
 }));
+
+// 진도율(%) 파생 셀렉터 — 헤더가 useCircuitStore(selectProgressPercent)로 구독
+export const selectProgressPercent = (state) => {
+  const done = Object.values(state.progress).filter(Boolean).length;
+  const total = Object.keys(state.progress).length;
+  return total === 0 ? 0 : Math.round((done / total) * 100);
+};
 
 export default useCircuitStore;
