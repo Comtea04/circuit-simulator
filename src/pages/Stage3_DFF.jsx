@@ -72,57 +72,65 @@ const Stage3_DFF = () => {
       </div>
 
       {/* 인터랙티브 회로 다이어그램 */}
-      <div className="bg-white rounded-xl shadow p-8">
-        <div className="flex items-center justify-between gap-4">
+      <div className="bg-white rounded-xl shadow p-8 mb-6">
+        <div className="relative w-full max-w-[700px] h-[360px] mx-auto bg-slate-50 border-2 border-slate-200 rounded-xl overflow-hidden shadow-sm">
+          <svg className="absolute inset-0 w-full h-full pointer-events-none">
+            {/* D to DFF */}
+            <path d="M 90 95 L 280 95" stroke={d ? '#ef4444' : '#60a5fa'} strokeWidth="4" fill="none" className="transition-colors duration-200" />
+            
+            {/* CLK to DFF */}
+            <path d="M 90 255 L 280 255" stroke={clk ? '#ef4444' : '#60a5fa'} strokeWidth="4" fill="none" className="transition-colors duration-200" />
+            
+            {/* DFF Q out to LightBulb */}
+            <path d="M 440 95 L 610 95" stroke={q===1 ? '#ef4444' : '#60a5fa'} strokeWidth="4" fill="none" className="transition-colors duration-200" />
+          </svg>
 
-          {/* 입력 */}
-          <div className="flex flex-col gap-10">
-            <div className="flex flex-col items-center gap-1">
-              <span className="text-sm font-bold text-gray-600">D (Data)</span>
-              <Switch value={d} onToggle={handleToggleD} />
-              <span className={`text-xs font-mono font-bold ${d ? 'text-red-500' : 'text-blue-500'}`}>{d}</span>
-            </div>
-            <div className="flex flex-col items-center gap-1">
-              <span className="text-sm font-bold text-gray-600">CLK</span>
-              {/* ClockButton은 onClick만 노출하므로, 래퍼 div의 마우스 이벤트로
-                  누를 때 1 / 뗄 때 0 펄스를 만든다 (이벤트 버블링 활용) */}
-              <div
-                className={`inline-block ${auto ? 'opacity-40 pointer-events-none' : 'cursor-pointer'}`}
-                onMouseDown={pressClk}
-                onMouseUp={releaseClk}
-                onMouseLeave={releaseClk}
-              >
-                <ClockButton isPressed={clk === 1} width={70} />
-              </div>
-              <span className={`text-xs font-mono font-bold ${clk ? 'text-red-500' : 'text-blue-500'}`}>{clk}</span>
-            </div>
+          {/* D Switch */}
+          <div className="absolute left-[30px] top-[60px] flex flex-col items-center gap-1 w-16">
+            <span className="text-sm font-bold text-gray-600">D (Data)</span>
+            <Switch value={d} onToggle={handleToggleD} />
+            <span className={`text-xs font-mono font-bold ${d ? 'text-red-500' : 'text-blue-500'}`}>{d}</span>
           </div>
 
-          {/* 입력 와이어 */}
-          <div className="flex flex-col gap-10">
-            <WireH signal={d} />
-            <WireH signal={clk} width="w-10" />
+          {/* CLK Button (고정 크기 컨테이너로 높이 점핑 방지) */}
+          <div className="absolute left-[30px] top-[200px] flex flex-col items-center gap-1 w-16">
+            <span className="text-sm font-bold text-gray-600">CLK</span>
+            <div
+              className={`flex items-center justify-center h-[70px] ${auto ? 'opacity-40 pointer-events-none' : 'cursor-pointer'}`}
+              onMouseDown={pressClk}
+              onMouseUp={releaseClk}
+              onMouseLeave={releaseClk}
+            >
+              <ClockButton isPressed={clk === 1} width={70} />
+            </div>
+            <span className={`text-xs font-mono font-bold ${clk ? 'text-red-500' : 'text-blue-500'}`}>{clk}</span>
           </div>
 
-          {/* DFF 박스 (엣지 순간 강조) */}
+          {/* DFF Block */}
           <div
-            className={`flex flex-col items-center justify-center border-2 rounded-lg w-28 h-32 transition-colors duration-200 ${
-              flash ? 'border-green-500 bg-green-50 shadow-lg shadow-green-200' : 'border-gray-400 bg-gray-50'
+            className={`absolute left-[280px] top-[70px] flex flex-col items-center justify-center border-2 rounded-xl w-[160px] h-[200px] transition-colors duration-200 ${
+              flash ? 'border-green-500 bg-green-50 shadow-[0_0_20px_rgba(34,197,94,0.3)]' : 'border-slate-600 bg-white shadow-sm'
             }`}
           >
-            <span className="text-xs text-gray-400 mb-1">D Flip-Flop</span>
-            <div className="flex flex-col items-start gap-2 text-xs text-gray-500 px-3">
-              <span>D ─────┐</span>
-              <span className="ml-2">│ &gt; Q</span>
-              <span>CLK ──&gt;┘</span>
-            </div>
+            <span className={`absolute top-3 text-sm font-bold tracking-wider ${flash ? 'text-green-600' : 'text-slate-500'}`}>D Flip-Flop</span>
+            
+            {/* D Input Label */}
+            <span className="absolute left-3 top-4 text-base font-bold text-slate-700">D</span>
+            
+            {/* CLK Input Label with SVG Triangle on border */}
+            <span className="absolute left-6 bottom-[10px] text-base font-bold text-slate-700">CLK</span>
+            <svg className="absolute -left-[2px] bottom-[5px]" width="14" height="20">
+              <path d="M 0 0 L 10 10 L 0 20" fill="none" stroke="currentColor" strokeWidth="2" className={flash ? "text-green-500" : "text-slate-600"} />
+            </svg>
+
+            {/* Q Output Label */}
+            <span className="absolute right-3 top-4 text-base font-bold text-slate-700">Q</span>
+            {/* Q' Output Label */}
+            <span className="absolute right-3 bottom-[10px] text-base font-bold text-slate-400">Q'</span>
           </div>
 
-          {/* 출력 와이어 */}
-          <WireH signal={q} />
-
-          {/* 출력 */}
-          <div className="flex flex-col items-center gap-1">
+          {/* Q LightBulb */}
+          <div className="absolute left-[610px] top-[40px] flex flex-col items-center gap-1 w-12">
             <span className="text-sm font-bold text-gray-600">Q</span>
             <LightBulb isOn={q === 1} />
             <span className={`text-xs font-mono font-bold ${q ? 'text-red-500' : 'text-blue-500'}`}>{q}</span>

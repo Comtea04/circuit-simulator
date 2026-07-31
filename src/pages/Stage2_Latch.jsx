@@ -42,67 +42,66 @@ const Stage2_Latch = () => {
       )}
 
       {/* 회로 다이어그램 */}
-      <div className="bg-white rounded-xl shadow p-8">
-        <div className="flex items-center justify-between gap-4">
+      <div className="relative w-full max-w-[700px] h-[360px] mx-auto bg-slate-50 border-2 border-slate-200 rounded-xl overflow-hidden shadow-sm mb-6">
+        <svg className="absolute inset-0 w-full h-full pointer-events-none">
+          {/* S to NOR 1 Top Input */}
+          <path d="M 80 100 L 260 100 L 260 85 L 300 85" stroke={s ? '#ef4444' : '#60a5fa'} strokeWidth="4" fill="none" className="transition-colors duration-200" />
+          {/* R to NOR 2 Bottom Input */}
+          <path d="M 80 260 L 260 260 L 260 245 L 300 245" stroke={r ? '#ef4444' : '#60a5fa'} strokeWidth="4" fill="none" className="transition-colors duration-200" />
+          
+          {/* NOR 1 out to Q */}
+          <path d="M 390 95 L 610 95" stroke={q===1 ? '#ef4444' : '#60a5fa'} strokeWidth="4" fill="none" className="transition-colors duration-200" />
+          {/* NOR 2 out to Q' */}
+          <path d="M 390 235 L 610 235" stroke={qNot===1 ? '#ef4444' : '#60a5fa'} strokeWidth="4" fill="none" className="transition-colors duration-200" />
 
-          {/* 입력 스위치 */}
-          <div className="flex flex-col gap-12">
-            <div className="flex flex-col items-center gap-1">
-              <span className="text-sm font-bold text-gray-600">S (Set)</span>
-              <Switch value={s} onToggle={handleToggleS} />
-              <span className={`text-xs font-mono font-bold ${s ? 'text-red-500' : 'text-blue-500'}`}>{s}</span>
-            </div>
-            <div className="flex flex-col items-center gap-1">
-              <span className="text-sm font-bold text-gray-600">R (Reset)</span>
-              <Switch value={r} onToggle={handleToggleR} />
-              <span className={`text-xs font-mono font-bold ${r ? 'text-red-500' : 'text-blue-500'}`}>{r}</span>
-            </div>
-          </div>
+          {/* Feedback Q to NOR 2 Top Input */}
+          <path d="M 450 95 L 450 155 L 270 155 L 270 225 L 300 225" stroke={q===1 ? '#ef4444' : '#60a5fa'} strokeWidth="4" fill="none" className="transition-colors duration-200" />
+          {/* Feedback Q' to NOR 1 Bottom Input */}
+          <path d="M 480 235 L 480 170 L 285 170 L 285 105 L 300 105" stroke={qNot===1 ? '#ef4444' : '#60a5fa'} strokeWidth="4" fill="none" className="transition-colors duration-200" />
+          
+          {/* Feedback Dots */}
+          <circle cx="450" cy="95" r="5" fill={q===1 ? '#ef4444' : '#60a5fa'} className="transition-colors duration-200" />
+          <circle cx="480" cy="235" r="5" fill={qNot===1 ? '#ef4444' : '#60a5fa'} className="transition-colors duration-200" />
+        </svg>
 
-          {/* 입력 → 게이트 와이어 */}
-          <div className="flex flex-col gap-12">
-            <WireH signal={s} />
-            <WireH signal={r} />
-          </div>
+        {/* S Switch */}
+        <div className="absolute left-[30px] top-[60px] flex flex-col items-center gap-1 w-16">
+          <span className="text-sm font-bold text-gray-600">S (Set)</span>
+          <Switch value={s} onToggle={handleToggleS} />
+          <span className={`text-xs font-mono font-bold ${s ? 'text-red-500' : 'text-blue-500'}`}>{s}</span>
+        </div>
 
-          {/* NOR 게이트 2개 */}
-          <div className="flex flex-col gap-6">
-            <div className="flex flex-col items-center gap-1">
-              <GateUI type="NOR" width={90} height={65} />
-              <span className="text-xs text-gray-400">NOR 1</span>
-            </div>
-            <div className="flex flex-col items-center gap-1">
-              <GateUI type="NOR" width={90} height={65} />
-              <span className="text-xs text-gray-400">NOR 2</span>
-            </div>
-          </div>
+        {/* R Switch */}
+        <div className="absolute left-[30px] top-[220px] flex flex-col items-center gap-1 w-16">
+          <span className="text-sm font-bold text-gray-600">R (Reset)</span>
+          <Switch value={r} onToggle={handleToggleR} />
+          <span className={`text-xs font-mono font-bold ${r ? 'text-red-500' : 'text-blue-500'}`}>{r}</span>
+        </div>
 
-          {/* 피드백 표시 */}
-          <div className="flex flex-col items-center gap-2 text-xs text-gray-400">
-            <div className="border-l-2 border-dashed border-gray-300 h-16" />
-            <span>피드백</span>
-            <div className="border-l-2 border-dashed border-gray-300 h-16" />
-          </div>
+        {/* NOR 1 */}
+        <div className="absolute left-[300px] top-[60px] flex flex-col items-center">
+          <GateUI type="NOR" width={90} height={65} />
+          <span className="text-xs text-gray-400 mt-1">NOR 1</span>
+        </div>
 
-          {/* 게이트 → 출력 와이어 */}
-          <div className="flex flex-col gap-12">
-            <WireH signal={q} />
-            <WireH signal={qNot} />
-          </div>
+        {/* NOR 2 */}
+        <div className="absolute left-[300px] top-[200px] flex flex-col items-center">
+          <GateUI type="NOR" width={90} height={65} />
+          <span className="text-xs text-gray-400 mt-1">NOR 2</span>
+        </div>
 
-          {/* 출력 전구 */}
-          <div className="flex flex-col gap-8">
-            <div className="flex flex-col items-center gap-1">
-              <span className="text-sm font-bold text-gray-600">Q</span>
-              <LightBulb isOn={q === 1} />
-              <span className={`text-xs font-mono font-bold ${q ? 'text-red-500' : 'text-blue-500'}`}>{q}</span>
-            </div>
-            <div className="flex flex-col items-center gap-1">
-              <span className="text-sm font-bold text-gray-600">Q'</span>
-              <LightBulb isOn={qNot === 1} />
-              <span className={`text-xs font-mono font-bold ${qNot ? 'text-red-500' : 'text-blue-500'}`}>{qNot}</span>
-            </div>
-          </div>
+        {/* Q LightBulb */}
+        <div className="absolute left-[610px] top-[40px] flex flex-col items-center gap-1 w-12">
+          <span className="text-sm font-bold text-gray-600">Q</span>
+          <LightBulb isOn={q === 1} />
+          <span className={`text-xs font-mono font-bold ${q ? 'text-red-500' : 'text-blue-500'}`}>{q}</span>
+        </div>
+
+        {/* Q' LightBulb */}
+        <div className="absolute left-[610px] top-[180px] flex flex-col items-center gap-1 w-12">
+          <span className="text-sm font-bold text-gray-600">Q'</span>
+          <LightBulb isOn={qNot === 1} />
+          <span className={`text-xs font-mono font-bold ${qNot ? 'text-red-500' : 'text-blue-500'}`}>{qNot}</span>
         </div>
       </div>
 
