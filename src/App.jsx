@@ -10,8 +10,8 @@ import RightPanel from './components/layout/RightPanel.jsx';
 export default function App() {
   return (
     <HashRouter>
-      {/* h-screen overflow-hidden으로 전체 창 크기 고정 & 고급스러운 다크 배경 적용 */}
-      <div className="flex h-screen w-screen overflow-hidden bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-black text-slate-100 select-none">
+      {/* h-screen overflow-hidden으로 전체 창 크기 고정 & 다크 배경 적용 */}
+      <div className="flex h-screen w-screen overflow-hidden bg-slate-950 text-slate-100 select-none">
         {/* 좌: 목차 (사이드바) */}
         <Sidebar />
 
@@ -20,7 +20,7 @@ export default function App() {
           <Header />
           <div className="flex-1 flex min-h-0 overflow-hidden">
             {/* 메인 회로 시뮬레이션 캔버스 (영역 내부만 스크롤) */}
-            <main className="flex-1 p-8 overflow-auto relative z-0">
+            <main className="flex-1 p-8 overflow-auto bg-slate-950">
               <Routes>
                 <Route path="/" element={<Intro />} />
                 <Route path="/stage1" element={<Stage1_Gates />} />

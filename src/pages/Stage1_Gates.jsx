@@ -8,8 +8,8 @@ const GATES = ['AND', 'OR', 'XOR', 'NOT', 'NAND', 'NOR'];
 
 const WireSegment = ({ signal }) => (
   <div
-    className={`h-1 w-10 rounded transition-all duration-300 ${
-      signal ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)]' : 'bg-slate-700'
+    className={`h-1 w-10 rounded transition-colors duration-200 ${
+      signal ? 'bg-red-500' : 'bg-blue-400'
     }`}
   />
 );
@@ -24,15 +24,15 @@ const GateCard = ({ type, onInteract }) => {
   };
 
   return (
-    <div className="bg-slate-900/40 backdrop-blur-sm border border-slate-700/50 rounded-xl shadow-xl p-5 flex flex-col gap-4 transition-all hover:bg-slate-800/40">
-      <h2 className="text-base font-bold text-slate-100">{type} 게이트</h2>
+    <div className="bg-white rounded-xl shadow p-5 flex flex-col gap-4">
+      <h2 className="text-base font-bold text-gray-700">{type} 게이트</h2>
 
       <div className="flex items-center gap-2">
         {/* 입력 스위치 + 와이어 */}
         <div className="flex flex-col gap-3">
           {inputs.map((val, i) => (
             <div key={i} className="flex items-center gap-1">
-              <span className="text-xs text-slate-400 font-medium w-3">{String.fromCharCode(65 + i)}</span>
+              <span className="text-xs text-gray-400 w-3">{String.fromCharCode(65 + i)}</span>
               <Switch value={val} onToggle={() => handleToggle(i)} />
               <WireSegment signal={val} />
             </div>
@@ -47,9 +47,9 @@ const GateCard = ({ type, onInteract }) => {
         <LightBulb isOn={output === 1} />
       </div>
 
-      <p className="text-sm text-slate-400">
+      <p className="text-sm text-gray-400">
         입력 [{inputs.join(', ')}] →{' '}
-        <span className={`font-bold ${output ? 'text-red-400' : 'text-slate-500'}`}>
+        <span className={`font-bold ${output ? 'text-red-500' : 'text-blue-500'}`}>
           출력 {output}
         </span>
       </p>

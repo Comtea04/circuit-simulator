@@ -10,7 +10,7 @@ const NAV_ITEMS = [
 ];
 
 const Sidebar = () => (
-  <aside className="w-60 min-h-screen bg-slate-900/50 backdrop-blur-md border-r border-slate-800 text-slate-100 flex flex-col p-4 gap-2 shrink-0 select-none shadow-lg relative z-20">
+  <aside className="w-60 min-h-screen bg-slate-900 border-r border-slate-800 text-slate-100 flex flex-col p-4 gap-2 shrink-0 select-none shadow-lg">
     {/* 헤더 타이틀 */}
     <div className="flex items-center gap-2.5 px-2 py-2 mb-2 border-b border-slate-800">
       <div className="w-7 h-7 rounded-lg bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-blue-400 font-bold text-xs">

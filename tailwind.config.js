@@ -5,12 +5,7 @@ export default {
     "./src/**/*.{js,jsx}",
   ],
   theme: {
-    extend: {
-      fontFamily: {
-        sans: ['Inter', 'sans-serif'],
-        mono: ['JetBrains Mono', 'monospace'],
-      },
-    },
+    extend: {},
   },
   plugins: [],
 };
