@@ -13,7 +13,7 @@ const Intro = () => {
     <div className="max-w-2xl mx-auto">
       {/* 타이틀 */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-800">웹 기반 회로 학습 시뮬레이터</h1>
+        <h1 className="text-3xl font-bold text-[#F4F4F4]">웹 기반 회로 학습 시뮬레이터</h1>
         <p className="text-gray-500 mt-2">
           논리 게이트부터 D Flip-Flop까지, 클릭 한 번으로 0과 1의 흐름을 직접 확인해보세요.
         </p>
