@@ -9,7 +9,7 @@ const Header = () => {
   const percent = useCircuitStore(selectProgressPercent);
 
   return (
-    <header className="h-16 bg-slate-900 border-b border-slate-800 px-8 flex items-center justify-between shrink-0 shadow-md">
+    <header className="h-16 bg-slate-900/50 backdrop-blur-md border-b border-slate-800 px-8 flex items-center justify-between shrink-0 shadow-md relative z-10">
       {/* 1. 현재 회로 타이틀 (아이콘 + 텍스트) */}
       <div className="flex items-center gap-3">
         <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400 font-bold text-sm">
