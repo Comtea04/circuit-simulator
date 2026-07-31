@@ -111,7 +111,7 @@ const Stage2_Latch = () => {
         <h3 className="font-bold text-gray-700 mb-3">SR Latch 진리표</h3>
         <table className="w-full text-sm text-center border-collapse">
           <thead>
-            <tr className="bg-gray-100">
+            <tr className="bg-gray-800">
               <th className="border border-gray-200 px-4 py-2">S</th>
               <th className="border border-gray-200 px-4 py-2">R</th>
               <th className="border border-gray-200 px-4 py-2">Q</th>
