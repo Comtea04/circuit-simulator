@@ -6,6 +6,7 @@ import Stage3_DFF from './pages/Stage3_DFF.jsx';
 import Sidebar from './components/layout/Sidebar.jsx';
 import Header from './components/layout/Header.jsx';
 import RightPanel from './components/layout/RightPanel.jsx';
+import Footer from './components/layout/Footer.jsx';
 
 export default function App() {
   return (
@@ -32,6 +33,9 @@ export default function App() {
             {/* 우측 개념 가이드 및 챗봇 영역 */}
             <RightPanel />
           </div>
+
+          {/* 하단 출처 표기 */}
+          <Footer />
         </div>
       </div>
     </HashRouter>

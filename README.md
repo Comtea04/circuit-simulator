@@ -57,3 +57,9 @@ circuit-simulator/
 ├── vite.config.js          # Vite 빌드 설정
 └── package.json            # 의존성 라이브러리 목록
 ```
+
+---
+
+### 5. 출처 및 AI 활용 고지
+본 콘텐츠는 Coursera 「Machine Learning for Data Analysis」강좌의 학습 내용을 바탕으로 구성하였으며,
+텍스트 초안 작성 및 아이디어 도출 과정에 ChatGPT와 Claude를 활용하였습니다.
