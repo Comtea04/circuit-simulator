@@ -111,12 +111,12 @@ const Stage2_Latch = () => {
         <h3 className="font-bold text-gray-700 mb-3">SR Latch 진리표</h3>
         <table className="w-full text-sm text-center border-collapse">
           <thead>
-            <tr className="bg-gray-800">
-              <th className="border border-gray-200 px-4 py-2">S</th>
-              <th className="border border-gray-200 px-4 py-2">R</th>
-              <th className="border border-gray-200 px-4 py-2">Q</th>
-              <th className="border border-gray-200 px-4 py-2">Q'</th>
-              <th className="border border-gray-200 px-4 py-2">상태</th>
+            <tr className="bg-gray-100">
+              <th className="border border-gray-200 px-4 py-2 text-[#363636]">S</th>
+              <th className="border border-gray-200 px-4 py-2 text-[#363636]">R</th>
+              <th className="border border-gray-200 px-4 py-2 text-[#363636]">Q</th>
+              <th className="border border-gray-200 px-4 py-2 text-[#363636]">Q'</th>
+              <th className="border border-gray-200 px-4 py-2 text-[#363636]">상태</th>
             </tr>
           </thead>
           <tbody>
@@ -127,11 +127,11 @@ const Stage2_Latch = () => {
               { s: 1, r: 1, q: '?',  qn: '?',    label: '⚠️ 금지',      highlight: s === 1 && r === 1 },
             ].map((row, i) => (
               <tr key={i} className={row.highlight ? 'bg-yellow-50 font-semibold' : ''}>
-                <td className="border border-gray-200 px-4 py-2">{row.s}</td>
-                <td className="border border-gray-200 px-4 py-2">{row.r}</td>
-                <td className="border border-gray-200 px-4 py-2">{String(row.q)}</td>
-                <td className="border border-gray-200 px-4 py-2">{String(row.qn)}</td>
-                <td className="border border-gray-200 px-4 py-2 text-gray-500">{row.label}</td>
+                <td className="border border-gray-200 px-4 py-2 text-[#363636]">{row.s}</td>
+                <td className="border border-gray-200 px-4 py-2 text-[#363636]">{row.r}</td>
+                <td className="border border-gray-200 px-4 py-2 text-[#363636]">{String(row.q)}</td>
+                <td className="border border-gray-200 px-4 py-2 text-[#363636]">{String(row.qn)}</td>
+                <td className="border border-gray-200 px-4 py-2 text-[#363636]">{row.label}</td>
               </tr>
             ))}
           </tbody>
