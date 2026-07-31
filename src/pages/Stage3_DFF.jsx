@@ -202,26 +202,26 @@ const Stage3_DFF = () => {
         <table className="w-full text-sm text-center border-collapse">
           <thead>
             <tr className="bg-gray-100">
-              <th className="border border-gray-200 px-4 py-2">CLK 엣지</th>
-              <th className="border border-gray-200 px-4 py-2">D</th>
-              <th className="border border-gray-200 px-4 py-2">Q (다음)</th>
+              <th className="border border-gray-200 px-4 py-2 text-[#363636]">CLK 엣지</th>
+              <th className="border border-gray-200 px-4 py-2 text-[#363636]">D</th>
+              <th className="border border-gray-200 px-4 py-2 text-[#363636]">Q (다음)</th>
             </tr>
           </thead>
           <tbody>
             <tr className={flash && d === 0 ? 'bg-yellow-50 font-semibold' : ''}>
-              <td className="border border-gray-200 px-4 py-2">↑ 상승 엣지</td>
-              <td className="border border-gray-200 px-4 py-2">0</td>
-              <td className="border border-gray-200 px-4 py-2">0</td>
+              <td className="border border-gray-200 px-4 py-2 text-[#363636]">↑ 상승 엣지</td>
+              <td className="border border-gray-200 px-4 py-2 text-[#363636]">0</td>
+              <td className="border border-gray-200 px-4 py-2 text-[#363636]">0</td>
             </tr>
             <tr className={flash && d === 1 ? 'bg-yellow-50 font-semibold' : ''}>
-              <td className="border border-gray-200 px-4 py-2">↑ 상승 엣지</td>
-              <td className="border border-gray-200 px-4 py-2">1</td>
-              <td className="border border-gray-200 px-4 py-2">1</td>
+              <td className="border border-gray-200 px-4 py-2 text-[#363636]">↑ 상승 엣지</td>
+              <td className="border border-gray-200 px-4 py-2 text-[#363636]">1</td>
+              <td className="border border-gray-200 px-4 py-2 text-[#363636]">1</td>
             </tr>
             <tr className={!flash ? 'bg-yellow-50 font-semibold' : ''}>
-              <td className="border border-gray-200 px-4 py-2">그 외 (0, 1, 하강)</td>
-              <td className="border border-gray-200 px-4 py-2">X</td>
-              <td className="border border-gray-200 px-4 py-2">Q 유지</td>
+              <td className="border border-gray-200 px-4 py-2 text-[#363636]">그 외 (0, 1, 하강)</td>
+              <td className="border border-gray-200 px-4 py-2 text-[#363636]">X</td>
+              <td className="border border-gray-200 px-4 py-2 text-[#363636]">Q 유지</td>
             </tr>
           </tbody>
         </table>
