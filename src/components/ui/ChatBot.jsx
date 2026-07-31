@@ -8,21 +8,16 @@ const SYSTEM_INSTRUCTION = `당신은 디지털 논리 회로와 컴퓨터 구�
 const ChatBot = () => {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState('');
-  const [messages, setMessages] = useState([]);
-  const [apiKey, setApiKey] = useState('');
-  const [isKeySaved, setIsKeySaved] = useState(false);
+  
+  // 키는 빌드 시 주입된다. 로컬은 .env(.env.example 참고),
+  // 배포는 GitHub Actions 시크릿(GEMINI_API_KEY)에서 온다.
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+
+  const [messages, setMessages] = useState([
+    { role: 'bot', text: '안녕하세요! 회로와 관련된 무엇이든 물어보세요.' }
+  ]);
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
-
-  // 로컬 스토리지에서 API 키 불러오기
-  useEffect(() => {
-    const savedKey = localStorage.getItem('GEMINI_API_KEY');
-    if (savedKey) {
-      setApiKey(savedKey);
-      setIsKeySaved(true);
-      setMessages([{ role: 'bot', text: '안녕하세요! 회로와 관련된 무엇이든 물어보세요.' }]);
-    }
-  }, []);
 
   // 메시지 업데이트 시 스크롤 아래로
   useEffect(() => {
@@ -31,36 +26,34 @@ const ChatBot = () => {
     }
   }, [messages]);
 
-  const saveApiKey = (e) => {
-    e.preventDefault();
-    const key = apiKey.trim();
-    if (!key) return;
-    localStorage.setItem('GEMINI_API_KEY', key);
-    setIsKeySaved(true);
-    setMessages([{ role: 'bot', text: 'API 키가 저장되었습니다. 무엇을 도와드릴까요?' }]);
-  };
-
-  const removeApiKey = () => {
-    localStorage.removeItem('GEMINI_API_KEY');
-    setApiKey('');
-    setIsKeySaved(false);
-    setMessages([]);
-  };
-
   const handleSend = async (e) => {
     e.preventDefault();
     const text = input.trim();
-    if (!text || !isKeySaved || isLoading) return;
+    if (!text || isLoading) return;
 
     const newMessages = [...messages, { role: 'user', text }];
     setMessages(newMessages);
     setInput('');
+
+    if (!apiKey) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: 'error',
+          text: 'API 키가 설정되지 않았습니다.\n.env.example을 .env로 복사한 뒤 VITE_GEMINI_API_KEY 값을 넣고 dev 서버를 다시 시작해주세요.'
+        }
+      ]);
+      return;
+    }
+
     setIsLoading(true);
 
     try {
       const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({ 
-        model: 'gemini-1.5-flash',
+      const model = genAI.getGenerativeModel({
+        // 버전 고정 모델명(gemini-1.5-flash 등)은 서비스 종료 시 404가 나므로
+        // 항상 최신 flash를 가리키는 별칭을 사용한다.
+        model: 'gemini-flash-latest',
         systemInstruction: SYSTEM_INSTRUCTION
       });
 
@@ -72,6 +65,11 @@ const ChatBot = () => {
           parts: [{ text: m.text }],
         }));
 
+      // Gemini API 제약: history는 반드시 user 역할부터 시작해야 합니다.
+      while (history.length > 0 && history[0].role === 'model') {
+        history.shift();
+      }
+
       const chat = model.startChat({ history });
       const result = await chat.sendMessage(text);
       const response = await result.response;
@@ -81,9 +79,11 @@ const ChatBot = () => {
       console.error(error);
       setMessages((prev) => [
         ...prev,
-        { role: 'error', text: 'API 호출 중 오류가 발생했습니다. API 키가 유효한지 확인해주세요.' }
+        {
+          role: 'error',
+          text: `API 호출 중 오류가 발생했습니다.\n${error?.message ?? error}`
+        }
       ]);
-      // 에러 발생 시 키를 리셋할 기회 제공 (선택적)
     } finally {
       setIsLoading(false);
     }
@@ -114,11 +114,6 @@ const ChatBot = () => {
             <div className="flex items-center justify-between px-4 py-3 border-b">
               <div className="flex items-center gap-2">
                 <h3 className="font-bold text-gray-800">🤖 AI 학습 도우미</h3>
-                {isKeySaved && (
-                  <button onClick={removeApiKey} className="text-xs text-red-500 hover:underline px-2">
-                    (키 삭제)
-                  </button>
-                )}
               </div>
               <button
                 type="button"
@@ -130,93 +125,54 @@ const ChatBot = () => {
               </button>
             </div>
 
-            {/* 메인 영역 */}
-            {!isKeySaved ? (
-              <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
-                <div className="bg-blue-50 text-blue-700 p-4 rounded-lg mb-6 text-sm">
-                  <p className="font-bold mb-2">Gemini API 키가 필요합니다</p>
-                  <p>이 기능은 무료로 제공되는 Google Gemini API를 사용합니다.</p>
-                  <a 
-                    href="https://aistudio.google.com/app/apikey" 
-                    target="_blank" 
-                    rel="noreferrer"
-                    className="underline font-semibold mt-2 inline-block text-blue-600"
-                  >
-                    API 키 발급받기 (무료)
-                  </a>
-                </div>
-                <form onSubmit={saveApiKey} className="w-full flex flex-col gap-3">
-                  <input
-                    type="password"
-                    value={apiKey}
-                    onChange={(e) => setApiKey(e.target.value)}
-                    placeholder="AIzaSy..."
-                    className="border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  />
-                  <button
-                    type="submit"
-                    className="bg-gray-800 hover:bg-gray-900 text-white rounded-lg px-4 py-2 font-semibold transition-colors"
-                  >
-                    키 저장 및 시작
-                  </button>
-                  <p className="text-xs text-gray-400 mt-2">
-                    입력하신 키는 브라우저 내부에만 안전하게 저장됩니다.
-                  </p>
-                </form>
-              </div>
-            ) : (
-              <>
-                {/* 메시지 영역 */}
-                <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
-                  {messages.map((m, i) => (
-                    <div
-                      key={i}
-                      className={`text-sm rounded-lg px-3 py-2 max-w-[85%] ${
-                        m.role === 'user'
-                          ? 'bg-blue-600 text-white self-end'
-                          : m.role === 'error'
-                          ? 'bg-red-100 text-red-700 self-center text-center w-full'
-                          : 'bg-gray-100 text-gray-700 self-start'
-                      }`}
-                    >
-                      {/* 간단한 줄바꿈 처리 */}
-                      {m.text.split('\n').map((line, j) => (
-                        <span key={j}>
-                          {line}
-                          <br />
-                        </span>
-                      ))}
-                    </div>
+            {/* 메인 영역 (항상 채팅 UI) */}
+            <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
+              {messages.map((m, i) => (
+                <div
+                  key={i}
+                  className={`text-sm rounded-lg px-3 py-2 max-w-[85%] ${
+                    m.role === 'user'
+                      ? 'bg-blue-600 text-white self-end'
+                      : m.role === 'error'
+                      ? 'bg-red-100 text-red-700 self-center text-center w-full'
+                      : 'bg-gray-100 text-gray-700 self-start'
+                  }`}
+                >
+                  {m.text.split('\n').map((line, j) => (
+                    <span key={j}>
+                      {line}
+                      <br />
+                    </span>
                   ))}
-                  {isLoading && (
-                    <div className="text-sm bg-gray-100 text-gray-500 self-start rounded-lg px-4 py-2 flex items-center gap-2">
-                      <span className="animate-bounce">●</span>
-                      <span className="animate-bounce" style={{ animationDelay: '0.2s' }}>●</span>
-                      <span className="animate-bounce" style={{ animationDelay: '0.4s' }}>●</span>
-                    </div>
-                  )}
-                  <div ref={messagesEndRef} />
                 </div>
+              ))}
+              {isLoading && (
+                <div className="text-sm bg-gray-100 text-gray-500 self-start rounded-lg px-4 py-2 flex items-center gap-2">
+                  <span className="animate-bounce">●</span>
+                  <span className="animate-bounce" style={{ animationDelay: '0.2s' }}>●</span>
+                  <span className="animate-bounce" style={{ animationDelay: '0.4s' }}>●</span>
+                </div>
+              )}
+              <div ref={messagesEndRef} />
+            </div>
 
-                {/* 입력 폼 */}
-                <form onSubmit={handleSend} className="flex gap-2 p-3 border-t">
-                  <input
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    placeholder="질문을 입력하세요..."
-                    disabled={isLoading}
-                    className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:bg-gray-50"
-                  />
-                  <button
-                    type="submit"
-                    disabled={isLoading || !input.trim()}
-                    className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white rounded-lg px-4 text-sm font-semibold transition-colors shrink-0"
-                  >
-                    전송
-                  </button>
-                </form>
-              </>
-            )}
+            {/* 입력 폼 */}
+            <form onSubmit={handleSend} className="flex gap-2 p-3 border-t">
+              <input
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="질문을 입력하세요..."
+                disabled={isLoading}
+                className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:bg-gray-50"
+              />
+              <button
+                type="submit"
+                disabled={isLoading || !input.trim()}
+                className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white rounded-lg px-4 text-sm font-semibold transition-colors shrink-0"
+              >
+                전송
+              </button>
+            </form>
           </div>
         </div>
       )}

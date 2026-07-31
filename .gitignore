@@ -1,0 +1,6 @@
+node_modules/
+dist/
+
+# API 키 등 로컬 환경변수 (절대 커밋 금지)
+.env
+.env.local
